@@ -16,9 +16,12 @@ def listar_filmes():
     for f in filmes:
         resultado.append({
             "id": f.id,
-            "nome": f.nome,
-            "descricao": f.descricao,
-            "data": f.data.isoformat() if f.data else None
+            "titulo": f.titulo,
+            "ano_lancamento": f.ano_lancamento,
+            "genero": f.genero,
+            "sinopse": f.sinopse,
+            "diretor_criador": f.diretor_criador,
+            "descricao": f.descricao
         })
 
     return {"filmes": resultado}, HTTPStatus.OK
@@ -28,13 +31,18 @@ def listar_filmes():
 def adicionar_filme():
     dados = request.get_json()
 
-    if not dados or 'nome' not in dados:
-        return {"erro": "Nome é obrigatório"}, HTTPStatus.BAD_REQUEST
+    campos = ['titulo', 'ano_lancamento', 'genero', 'sinopse', 'diretor_criador', 'descricao']
+    if not dados or not all(campo in dados for campo in campos):
+        return {"erro": "Todos os campos são obrigatórios"}, HTTPStatus.BAD_REQUEST
 
-    nome = dados['nome']
-    descricao = dados.get('descricao', '')
-
-    novo_filme = Filme(nome=nome, descricao=descricao)
+    novo_filme = Filme(
+        titulo=dados['titulo'],
+        ano_lancamento=dados['ano_lancamento'],
+        genero=dados['genero'],
+        sinopse=dados['sinopse'],
+        diretor_criador=dados['diretor_criador'],
+        descricao=dados['descricao']
+    )
     db.session.add(novo_filme)
     db.session.commit()
 
@@ -42,9 +50,12 @@ def adicionar_filme():
         "mensagem": "Filme adicionado com sucesso",
         "filme": {
             "id": novo_filme.id,
-            "nome": novo_filme.nome,
-            "descricao": novo_filme.descricao,
-            "data": novo_filme.data.isoformat() if novo_filme.data else None
+            "titulo": novo_filme.titulo,
+            "ano_lancamento": novo_filme.ano_lancamento,
+            "genero": novo_filme.genero,
+            "sinopse": novo_filme.sinopse,
+            "diretor_criador": novo_filme.diretor_criador,
+            "descricao": novo_filme.descricao
         }
     }, HTTPStatus.CREATED
 
@@ -66,14 +77,19 @@ def deletar_filme(id):
 def atualizar_filme_total(id):
     dados = request.get_json()
 
-    if not dados or 'nome' not in dados or 'descricao' not in dados:
-        return {"erro": "Nome e descrição são obrigatórios"}, HTTPStatus.BAD_REQUEST
+    campos = ['titulo', 'ano_lancamento', 'genero', 'sinopse', 'diretor_criador', 'descricao']
+    if not dados or not all(campo in dados for campo in campos):
+        return {"erro": "Todos os campos são obrigatórios"}, HTTPStatus.BAD_REQUEST
 
     filme = Filme.query.get(id)
     if not filme:
         return {"erro": "Filme não encontrado"}, HTTPStatus.NOT_FOUND
 
-    filme.nome = dados['nome']
+    filme.titulo = dados['titulo']
+    filme.ano_lancamento = dados['ano_lancamento']
+    filme.genero = dados['genero']
+    filme.sinopse = dados['sinopse']
+    filme.diretor_criador = dados['diretor_criador']
     filme.descricao = dados['descricao']
     db.session.commit()
 
@@ -81,7 +97,11 @@ def atualizar_filme_total(id):
         "mensagem": "Filme atualizado com sucesso",
         "filme": {
             "id": filme.id,
-            "nome": filme.nome,
+            "titulo": filme.titulo,
+            "ano_lancamento": filme.ano_lancamento,
+            "genero": filme.genero,
+            "sinopse": filme.sinopse,
+            "diretor_criador": filme.diretor_criador,
             "descricao": filme.descricao
         }
     }, HTTPStatus.OK
@@ -91,15 +111,23 @@ def atualizar_filme_total(id):
 def atualizar_filme_parcial(id):
     dados = request.get_json()
 
-    if not dados or ('nome' not in dados and 'descricao' not in dados):
+    if not dados:
         return {"erro": "Dados inválidos ou incompletos"}, HTTPStatus.BAD_REQUEST
 
     filme = Filme.query.get(id)
     if not filme:
         return {"erro": "Filme não encontrado"}, HTTPStatus.NOT_FOUND
 
-    if 'nome' in dados:
-        filme.nome = dados['nome']
+    if 'titulo' in dados:
+        filme.titulo = dados['titulo']
+    if 'ano_lancamento' in dados:
+        filme.ano_lancamento = dados['ano_lancamento']
+    if 'genero' in dados:
+        filme.genero = dados['genero']
+    if 'sinopse' in dados:
+        filme.sinopse = dados['sinopse']
+    if 'diretor_criador' in dados:
+        filme.diretor_criador = dados['diretor_criador']
     if 'descricao' in dados:
         filme.descricao = dados['descricao']
 
@@ -109,7 +137,11 @@ def atualizar_filme_parcial(id):
         "mensagem": "Filme atualizado com sucesso",
         "filme": {
             "id": filme.id,
-            "nome": filme.nome,
+            "titulo": filme.titulo,
+            "ano_lancamento": filme.ano_lancamento,
+            "genero": filme.genero,
+            "sinopse": filme.sinopse,
+            "diretor_criador": filme.diretor_criador,
             "descricao": filme.descricao
         }
     }, HTTPStatus.OK
