@@ -36,12 +36,12 @@ def adicionar_filme():
         return {"erro": "Todos os campos são obrigatórios"}, HTTPStatus.BAD_REQUEST
 
     novo_filme = Filme(
-        titulo=dados['titulo'],
-        ano_lancamento=dados['ano_lancamento'],
-        genero=dados['genero'],
-        sinopse=dados['sinopse'],
-        diretor_criador=dados['diretor_criador'],
-        descricao=dados['descricao']
+        titulo=dados['titulo'], # pyright: ignore[reportCallIssue]
+        ano_lancamento=dados['ano_lancamento'],  # pyright: ignore[reportCallIssue]
+        genero=dados['genero'], # pyright: ignore[reportCallIssue]
+        sinopse=dados['sinopse'], # pyright: ignore[reportCallIssue]
+        diretor_criador=dados['diretor_criador'], # pyright: ignore[reportCallIssue]
+        descricao=dados['descricao'] # pyright: ignore[reportCallIssue]
     )
     db.session.add(novo_filme)
     db.session.commit()
