@@ -85,25 +85,19 @@ def atualizar_filme_total(id):
     if not filme:
         return {"erro": "Filme não encontrado"}, HTTPStatus.NOT_FOUND
 
-    filme.titulo = dados['titulo']
-    filme.ano_lancamento = dados['ano_lancamento']
-    filme.genero = dados['genero']
-    filme.sinopse = dados['sinopse']
-    filme.diretor_criador = dados['diretor_criador']
-    filme.descricao = dados['descricao']
-    db.session.commit()
+    
+    alteracoes = {campo: dados[campo] for campo in campos if getattr(filme, campo) != dados[campo]}
+    if len(alteracoes) != len(campos):
+        return {"erro": "Todos os campos devem ser alterados para realizar a atualização"}, HTTPStatus.BAD_REQUEST
 
+    
+    for campo in campos:
+        setattr(filme, campo, dados[campo])
+    
+    db.session.commit()
     return {
         "mensagem": "Filme atualizado com sucesso",
-        "filme": {
-            "id": filme.id,
-            "titulo": filme.titulo,
-            "ano_lancamento": filme.ano_lancamento,
-            "genero": filme.genero,
-            "sinopse": filme.sinopse,
-            "diretor_criador": filme.diretor_criador,
-            "descricao": filme.descricao
-        }
+        "filme": {campo: getattr(filme, campo) for campo in ['id'] + campos}
     }, HTTPStatus.OK
 
 
