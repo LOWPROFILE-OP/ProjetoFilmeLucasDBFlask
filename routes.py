@@ -4,7 +4,6 @@ from models import db, Filme
 
 app_filmes = Blueprint('filmes', __name__, url_prefix='/filmes')
 
-
 @app_filmes.get('/')
 def listar_filmes():
     filmes = Filme.query.all()
@@ -87,13 +86,13 @@ def atualizar_filme_total(id):
 
     
     alteracoes = {campo: dados[campo] for campo in campos if getattr(filme, campo) != dados[campo]}
-    if len(alteracoes) != len(campos):
-        return {"erro": "Todos os campos devem ser alterados para realizar a atualização"}, HTTPStatus.BAD_REQUEST
 
-    
+    if len(alteracoes) != len(campos):
+        return {"erro": "Todos os campos devem ser enviados e ter valores diferentes para atualização"}, HTTPStatus.BAD_REQUEST
+
     for campo in campos:
         setattr(filme, campo, dados[campo])
-    
+
     db.session.commit()
     return {
         "mensagem": "Filme atualizado com sucesso",
@@ -107,23 +106,21 @@ def atualizar_filme_parcial(id):
 
     if not dados:
         return {"erro": "Dados inválidos ou incompletos"}, HTTPStatus.BAD_REQUEST
+    
+    if len(dados) != 1:
+        return {"erro": "Apenas um campo pode ser atualizado por vez"}, HTTPStatus.BAD_REQUEST
+
+    campo = list(dados.keys())[0]
+
+    campos_validos = ['titulo', 'ano_lancamento', 'genero', 'sinopse', 'diretor_criador', 'descricao']
+    if campo not in campos_validos:
+        return {"erro": f"Campo '{campo}' inválido para atualização"}, HTTPStatus.BAD_REQUEST
 
     filme = Filme.query.get(id)
     if not filme:
         return {"erro": "Filme não encontrado"}, HTTPStatus.NOT_FOUND
 
-    if 'titulo' in dados:
-        filme.titulo = dados['titulo']
-    if 'ano_lancamento' in dados:
-        filme.ano_lancamento = dados['ano_lancamento']
-    if 'genero' in dados:
-        filme.genero = dados['genero']
-    if 'sinopse' in dados:
-        filme.sinopse = dados['sinopse']
-    if 'diretor_criador' in dados:
-        filme.diretor_criador = dados['diretor_criador']
-    if 'descricao' in dados:
-        filme.descricao = dados['descricao']
+    setattr(filme, campo, dados[campo])
 
     db.session.commit()
 
