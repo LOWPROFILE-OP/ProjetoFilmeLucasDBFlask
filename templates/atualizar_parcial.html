@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Atualizar Parcialmente {{ tipo|capitalize }} - Pirataflix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+        form {
+            max-width: 400px;
+            margin: 30px auto;
+            background: #1c1c1c;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: none;
+            background: #222;
+            color: #eee;
+            font-size: 15px;
+            resize: vertical;
+        }
+        button {
+            margin-top: 10px;
+            background-color: #e50914;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #b00610;
+        }
+        .flash-msg {
+            max-width: 400px;
+            margin: 15px auto;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .flash-msg.erro {
+            background-color: #8b0000;
+            color: #fff;
+        }
+        .flash-msg.sucesso {
+            background-color: #228B22;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <div class="logo">Pirataflix</div>
+        <div class="links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('listar_filmes') }}" {% if tipo == 'filme' %}class="ativo"{% endif %}>Filmes</a>
+            <a href="{{ url_for('listar_series') }}" {% if tipo == 'serie' %}class="ativo"{% endif %}>Séries</a>
+        </div>
+    </div>
+
+    <h2 style="text-align:center; margin-top:30px;">Atualizar Parcialmente {{ tipo|capitalize }}</h2>
+    <p style="text-align:center; max-width:400px; margin: 0 auto 20px; color:#ccc;">
+      Escolha um campo para atualizar. Apenas um campo será atualizado por vez.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {# Para cada campo, um form separado #}
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" name="titulo" placeholder="{{ item.titulo }}">
+        <button type="submit" name="campo" value="titulo">Atualizar Título</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="ano_lancamento">Ano de Lançamento</label>
+        <input type="number" id="ano_lancamento" name="ano_lancamento" min="1800" max="2100" placeholder="{{ item.ano_lancamento }}">
+        <button type="submit" name="campo" value="ano_lancamento">Atualizar Ano</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="genero">Gênero</label>
+        <input type="text" id="genero" name="genero" placeholder="{{ item.genero }}">
+        <button type="submit" name="campo" value="genero">Atualizar Gênero</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="sinopse">Sinopse</label>
+        <textarea id="sinopse" name="sinopse" rows="3" placeholder="{{ item.sinopse }}"></textarea>
+        <button type="submit" name="campo" value="sinopse">Atualizar Sinopse</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="diretor_criador">Diretor / Criador</label>
+        <input type="text" id="diretor_criador" name="diretor_criador" placeholder="{{ item.diretor_criador }}">
+        <button type="submit" name="campo" value="diretor_criador">Atualizar Diretor / Criador</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" name="descricao" rows="2" placeholder="{{ item.descricao }}"></textarea>
+        <button type="submit" name="campo" value="descricao">Atualizar Descrição</button>
+    </form>
+
+    <form method="POST" action="{% if tipo == 'filme' %}{{ url_for('atualizar_parcial_filme', id=item.id) }}{% else %}{{ url_for('atualizar_parcial_serie', id=item.id) }}{% endif %}">
+        <label for="url_imagem">URL da Imagem</label>
+        <input type="text" id="url_imagem" name="url_imagem" placeholder="{{ item.url_imagem }}">
+        <button type="submit" name="campo" value="url_imagem">Atualizar URL da Imagem</button>
+    </form>
+
+</body>
+</html>

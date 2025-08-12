@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pirataflix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="menu">
+        <div class="logo">Pirataflix</div>
+        <div class="links">
+            <a href="{{ url_for('home') }}" class="ativo">Home</a>
+            <a href="{{ url_for('listar_filmes') }}">Filmes</a>
+            <a href="{{ url_for('listar_series') }}">Séries</a>
+        </div>
+    </div>
+
+    <section class="texto">
+        Bem-vindo ao Pirataflix, explore uma vasta coleção de filmes e séries.
+    </section>
+
+    <section class="caixas">
+
+        {# Mostrar filmes na primeira metade #}
+        {% for filme in filmes %}
+        <div class="caixa">
+            <a href="{{ url_for('detalhes_filme', id=filme.id) }}">
+                <img src="{{ filme.url_imagem or 'https://via.placeholder.com/220x330?text=Sem+Imagem' }}" alt="Imagem do filme {{ filme.titulo }}" />
+                <p>{{ filme.titulo }}</p>
+            </a>
+        </div>
+        {% endfor %}
+
+        {# Mostrar séries depois #}
+        {% for serie in series %}
+        <div class="caixa">
+            <a href="{{ url_for('detalhes_serie', id=serie.id) }}">
+                <img src="{{ serie.url_imagem or 'https://via.placeholder.com/220x330?text=Sem+Imagem' }}" alt="Imagem da série {{ serie.titulo }}" />
+                <p>{{ serie.titulo }}</p>
+            </a>
+        </div>
+        {% endfor %}
+
+    </section>
+</body>
+</html>

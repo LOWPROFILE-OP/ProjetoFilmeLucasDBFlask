@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Filmes - Pirataflix</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+</head>
+<body>
+  <div class="menu">
+    <div class="logo">Pirataflix</div>
+    <div class="links">
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('listar_filmes') }}" class="ativo">Filmes</a>
+      <a href="{{ url_for('listar_series') }}">Séries</a>
+    </div>
+  </div>
+
+  <div class="texto">Filmes disponíveis</div>
+
+  <div class="caixas">
+    {% for filme in filmes %}
+    <div class="caixa">
+      <a href="{{ url_for('detalhes_filme', id=filme.id) }}">
+        <img src="{{ filme.url_imagem or 'https://via.placeholder.com/220x330?text=Sem+Imagem' }}" alt="Imagem do filme {{ filme.titulo }}" />
+        <p>{{ filme.titulo }}</p>
+      </a>
+    </div>
+    {% else %}
+    <p>Nenhum filme cadastrado.</p>
+    {% endfor %}
+  </div>
+
+  <div class="botoes-acoes" style="margin-top: 30px;">
+    <a href="{{ url_for('adicionar_filme') }}">
+      <button>Adicionar</button>
+    </a>
+  </div>
+
+</body>
+</html>

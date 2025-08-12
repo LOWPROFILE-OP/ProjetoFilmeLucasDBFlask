@@ -1,0 +1,111 @@
+/* style_adicionar.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #111;
+  color: #eee;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  margin-bottom: 50%;
+  min-height: 100vh;
+}
+
+h1 {
+  margin-bottom: 25px;
+  color: #e50914;
+  text-align: center;
+  font-weight: 700;
+  font-size: 2.4rem;
+}
+
+form {
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: #1c1c1c;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #ddd;
+}
+
+form input[type="text"],
+form input[type="number"],
+form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: none;
+  background-color: #333;
+  color: #eee;
+  font-size: 1rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+form textarea {
+  min-height: 80px;
+}
+
+form button {
+  background-color: #e50914;
+  color: white;
+  font-weight: 700;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1.2rem;
+  transition: background-color 0.3s;
+}
+.menu .logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e50914;
+}
+form button:hover {
+  background-color: #b0060e;
+}
+
+a {
+  color: #e50914;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 25px;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: #fff;
+}
+
+
+.botoes-acoes a button {
+  width: auto;
+  padding: 12px 25px;
+  display: inline-block;
+  cursor: pointer;
+  background-color: #e50914;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.botoes-acoes a button:hover {
+  background-color: #b0060e;
+}

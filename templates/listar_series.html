@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Séries - Pirataflix</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="menu">
+    <div class="logo">Pirataflix</div>
+    <div class="links">
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('listar_filmes') }}">Filmes</a>
+      <a href="{{ url_for('listar_series') }}" class="ativo">Séries</a>
+    </div>
+  </div>
+
+  <div class="texto">Séries disponíveis</div>
+
+  <div class="caixas">
+        {% for serie in series %}
+            <div class="caixa">
+            <a href="{{ url_for('detalhes_serie', id=serie.id) }}">
+            <img src="{{ serie.url_imagem or 'https://via.placeholder.com/220x330?text=Sem+Imagem' }}" alt="{{ serie.titulo }}" />
+            <p>{{ serie.titulo }}</p>
+            </a>
+        
+    </div>
+{% else %}
+  <p>Nenhuma série cadastrada.</p>
+{% endfor %}
+
+  </div>
+
+  <div class="botoes-acoes">
+    <a href="{{ url_for('adicionar_serie') }}">
+      <button class="btn-adicionar">Adicionar Série</button>
+    </a>
+  </div>
+</body>
+</html>
