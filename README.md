@@ -8,6 +8,6 @@ FOI LEGAL? \(￣︶￣*\))
 Claro!, me pergunto se conseguirei juntar HtML, CSS e PYTHON no final desse projeto KSKS
 
 
-
+É ACABOU USEI JINJA2 PARA CONSEGUIR CONECTAR O HTML COM PYTHON
 
 OBRIGADO POR LER ISSO ( •̀ ω •́ )y
