@@ -294,6 +294,25 @@ body {
 }
 
 
+.flash {
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.flash.erro {
+    background-color: #b00610;
+    color: #fff;
+}
+
+.flash.sucesso {
+    background-color: #28a745;
+    color: #fff;
+}
+
+
+
   @media (max-width:480px){
     .brand{ font-size:22px }
     .accent-bar{ height:2px }

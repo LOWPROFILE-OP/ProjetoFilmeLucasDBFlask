@@ -1,16 +1,46 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from auth import login_required_web
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from http import HTTPStatus
-from models import db, Filme, Serie 
+from models import db, Filme, Serie, Usuario
 from sqlalchemy import asc
 import click
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from auth import auth_bp as auth
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta'
+jwt = JWTManager()
+jwt.init_app(app)
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return redirect(url_for('auth.acesso_negado'))
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return redirect(url_for('auth.acesso_negado'))
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return redirect(url_for('auth.acesso_negado'))
+
+def criando_app(__name__, intance_relative_config=True):
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        SQLALCHEMY_DATABASE_URI='sqlite:///Catalogo.db',
+        JWT_SECRET_KEY='super-secret'
+    )
+criando_app(__name__)
+
+app.config["JWT_SECRET_KEY"] = "super-secret"
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+jwt.init_app(app)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///Catalogo.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
-
+jwt.init_app(app)
+app.register_blueprint(auth, url_prefix='/auth')
 
 @app.route('/')
 def home():
@@ -18,13 +48,16 @@ def home():
     series = Serie.query.order_by(asc(Serie.titulo)).all()
     return render_template('index.html', filmes=filmes, series=series), HTTPStatus.OK
 
-
-@app.route('/filmes')
+@app.route('/filmes') # type: ignore
+@login_required_web # para web
+#@jwt_required() # para API/postman
 def listar_filmes():
     filmes = Filme.query.order_by(asc(Filme.titulo)).all()
     return render_template('listar_filmes.html', filmes=filmes), HTTPStatus.OK
 
 @app.route('/filmes/adicionar', methods=['GET', 'POST'])
+@login_required_web # para web
+#@jwt_required() # para API/postman
 def adicionar_filme():
     if request.method == 'POST':
         titulo = request.form.get('titulo')
@@ -37,8 +70,7 @@ def adicionar_filme():
 
         if not titulo or not ano_lancamento or not genero:
             flash('Título, Ano de Lançamento e Gênero são obrigatórios!', 'erro')
-            # Bad request 400 ao não enviar dados obrigatórios
-            return render_template('adicionar.html', tipo="filme"), HTTPStatus.BAD_REQUEST
+            return render_template('adicionar.html', tipo="filme"), HTTPStatus.BAD_REQUEST # type: ignore
 
         try:
             ano_lancamento = int(ano_lancamento)
@@ -60,23 +92,25 @@ def adicionar_filme():
         db.session.commit()
 
         flash('Filme adicionado com sucesso!', 'sucesso')
-        # Redirect com status 302 FOUND (padrão)
-        return redirect(url_for('listar_filmes')), HTTPStatus.FOUND
+        return redirect(url_for('listar_filmes')), HTTPStatus.FOUND # type: ignore
 
     return render_template('adicionar.html', tipo="filme"), HTTPStatus.OK
 
 @app.route('/filmes/detalhes/<int:id>')
+@login_required_web # para web
+#@jwt_required() # para API/postman
 def detalhes_filme(id):
     filme = Filme.query.get_or_404(id)
     return render_template('detalhes.html', item=filme, tipo="filme"), HTTPStatus.OK
 
 @app.route('/filmes/atualizar/<int:id>', methods=['GET', 'POST'])
+@login_required_web # para web
+#@jwt_required() # para API/postman
 def atualizar_filme(id):
     filme = Filme.query.get_or_404(id)
     if request.method == 'POST':
         try:
-            # Pegue os novos valores do form
-            titulo = request.form.get('titulo')
+            titulo = request.form.get('titulo') # type: ignore
             ano_lancamento_str = request.form.get('ano_lancamento')
             genero = request.form.get('genero')
             sinopse = request.form.get('sinopse')
@@ -84,16 +118,13 @@ def atualizar_filme(id):
             descricao = request.form.get('descricao')
             url_imagem = request.form.get('url_imagem')
 
-            # Verifique se os obrigatórios estão preenchidos
-            if not titulo or not ano_lancamento_str or not genero:
+            if not titulo or not ano_lancamento_str or not genero: # type: ignore
                 flash('Título, Ano de Lançamento e Gênero são obrigatórios!', 'erro')
                 return render_template('atualizar.html', item=filme, tipo="filme"), HTTPStatus.BAD_REQUEST
 
-            # Converta ano de lançamento
-            ano_lancamento = int(ano_lancamento_str)
+            ano_lancamento = int(ano_lancamento_str) # type: ignore
 
-            # Verifique quantos campos realmente mudaram (pelo menos 3 para atualizar)
-            campos_alterados = 0
+            campos_alterados = 0 # type: ignore
             if titulo != filme.titulo:
                 campos_alterados += 1
             if ano_lancamento != filme.ano_lancamento:
@@ -114,8 +145,7 @@ def atualizar_filme(id):
                 flash('Ou clique na logo para voltar', 'erro')
                 return render_template('atualizar.html', item=filme, tipo="filme"), HTTPStatus.BAD_REQUEST
 
-            # VAI ATUALIZANDO AE PAPAI
-            filme.titulo = titulo
+            filme.titulo = titulo # type: ignore
             filme.ano_lancamento = ano_lancamento
             filme.genero = genero
             filme.sinopse = sinopse
@@ -133,8 +163,8 @@ def atualizar_filme(id):
 
     return render_template('atualizar.html', item=filme, tipo="filme"), HTTPStatus.OK
 
-
-@app.route('/filmes/atualizar_parcial/<int:id>', methods=['GET', 'POST'])
+@app.route('/filmes/atualizar_parcial/<int:id>', methods=['GET', 'POST']) # type: ignore
+@login_required_web
 def atualizar_parcial_filme(id):
     filme = Filme.query.get_or_404(id)
     if request.method == 'POST':
@@ -143,20 +173,19 @@ def atualizar_parcial_filme(id):
             flash('Campo para atualização não informado!', 'erro')
             return redirect(url_for('atualizar_parcial_filme', id=id))
 
-        valor = request.form.get(campo)  # Aqui pega o valor correto do campo específico
-
+        valor = request.form.get(campo)
         if not valor or valor.strip() == '':
             flash(f'O campo {campo} não pode estar vazio!', 'erro')
             return redirect(url_for('atualizar_parcial_filme', id=id))
 
-        if hasattr(filme, campo):  # type: ignore
+        if hasattr(filme, campo):
             if campo == 'ano_lancamento':
                 try:
-                    valor = int(valor)  # type: ignore
+                    valor = int(valor)
                 except ValueError:
                     flash('Ano de Lançamento inválido!', 'erro')
                     return redirect(url_for('atualizar_parcial_filme', id=id))
-            setattr(filme, campo, valor)  # type: ignore
+            setattr(filme, campo, valor)
             db.session.commit()
             flash(f'{campo} atualizado com sucesso!', 'sucesso')
         else:
@@ -166,8 +195,8 @@ def atualizar_parcial_filme(id):
 
     return render_template('atualizar_parcial.html', item=filme, tipo="filme")
 
-
-@app.route('/filmes/deletar/<int:id>', methods=['POST'])
+@app.route('/filmes/deletar/<int:id>', methods=['POST']) # type: ignore
+@login_required_web
 def deletar_filme(id):
     filme = Filme.query.get_or_404(id)
     db.session.delete(filme)
@@ -175,13 +204,15 @@ def deletar_filme(id):
     flash('Filme deletado com sucesso!', 'sucesso')
     return redirect(url_for('listar_filmes')), HTTPStatus.FOUND
 
-
+# Rotas Series seguem mesmo padrão
 @app.route('/series')
+@login_required_web
 def listar_series():
     series = Serie.query.order_by(asc(Serie.titulo)).all()
     return render_template('listar_series.html', series=series), HTTPStatus.OK
 
 @app.route('/series/adicionar', methods=['GET', 'POST'])
+@login_required_web
 def adicionar_serie():
     if request.method == 'POST':
         titulo = request.form.get('titulo')
@@ -206,7 +237,7 @@ def adicionar_serie():
             titulo=titulo, # type: ignore
             ano_lancamento=ano_lancamento, # type: ignore
             genero=genero, # type: ignore
-            sinopse=sinopse,# type: ignore
+            sinopse=sinopse, # type: ignore
             diretor_criador=diretor_criador, # type: ignore
             descricao=descricao, # type: ignore
             url_imagem=url_imagem # type: ignore
@@ -221,11 +252,13 @@ def adicionar_serie():
     return render_template('adicionar.html', tipo="serie"), HTTPStatus.OK
 
 @app.route('/series/detalhes/<int:id>')
+@login_required_web
 def detalhes_serie(id):
     serie = Serie.query.get_or_404(id)
     return render_template('detalhes.html', item=serie, tipo="serie"), HTTPStatus.OK
 
 @app.route('/series/atualizar/<int:id>', methods=['GET', 'POST'])
+@login_required_web
 def atualizar_serie(id):
     serie = Serie.query.get_or_404(id)
     if request.method == 'POST':
@@ -248,6 +281,7 @@ def atualizar_serie(id):
     return render_template('atualizar.html', item=serie, tipo="serie"), HTTPStatus.OK
 
 @app.route('/series/atualizar-parcial/<int:id>', methods=['GET', 'POST'])
+@login_required_web
 def atualizar_parcial_serie(id):
     serie = Serie.query.get_or_404(id)
     if request.method == 'POST':
@@ -272,6 +306,7 @@ def atualizar_parcial_serie(id):
     return render_template('atualizar_parcial.html', item=serie, tipo="serie"), HTTPStatus.OK
 
 @app.route('/series/deletar/<int:id>', methods=['POST'])
+@login_required_web
 def deletar_serie(id):
     serie = Serie.query.get_or_404(id)
     db.session.delete(serie)
@@ -284,9 +319,27 @@ def init_db():
     """Inicializa o banco de dados, criando as tabelas."""
     db.create_all()
     click.echo("Banco de dados criado com sucesso!")
+    
+@app.cli.command("create-admin")
+def create_admin():
+    from app import app
+    with app.app_context():
+        if not Usuario.query.filter_by(username="admin").first():
+            admin = Usuario(username="admin") # type: ignore
+            admin.set_password("1234")
+            db.session.add(admin)
+            db.session.commit()
+            print("Usuário admin criado com sucesso!")
+        else:
+            print("Usuário admin já existe.")
 
-# fiquei com preguiça de ficar coisando no terminal
+def deletar_usuarios_antigos():
+    limite = datetime.utcnow() - timedelta(days=30)
+    usuarios = Usuario.query.filter(Usuario.criado_em < limite).all()
+    for usuario in usuarios:
+        db.session.delete(usuario)
+    db.session.commit()
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+        app.run(debug=True)

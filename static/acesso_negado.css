@@ -1,0 +1,12 @@
+*{
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+h1{
+    color: rgb(202, 24, 24);
+}
+a{
+    color: rgb(149, 36, 187);
+    text-decoration: none;
+}
